@@ -103,7 +103,6 @@ private:
 
 	void pickPhysicalDevice()
 	{
-		VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
 
 		uint32_t deviceCount = 0;
 		vkEnumeratePhysicalDevices(m_instance, &deviceCount, nullptr);
@@ -119,12 +118,12 @@ private:
 		{
 			if (isDeviceSuitable(device))
 			{
-				physicalDevice = device;
+				m_physicalDevice = device;
 				break;
 			}
 		}
 
-		if (physicalDevice == VK_NULL_HANDLE)
+		if (m_physicalDevice == VK_NULL_HANDLE)
 		{
 			throw std::runtime_error("Failed to find a suitable GPU!");
 		}
@@ -338,4 +337,6 @@ private:
 
 	VkInstance m_instance;
 	VkDebugUtilsMessengerEXT m_debugMessenger;
+
+	VkPhysicalDevice m_physicalDevice = VK_NULL_HANDLE;
 };
