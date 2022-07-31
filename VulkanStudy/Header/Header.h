@@ -99,11 +99,52 @@ private:
 		createInstance();
 		setupDebugMessenger();
 		pickPhysicalDevice();
+		createLogicalDevice();
+	}
+
+	void createLogicalDevice()
+	{
+		QueueFamilyIndices indices = findQueueFamilies(m_physicalDevice);
+
+		VkDeviceQueueCreateInfo queueCreateInfo{};
+		queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+		queueCreateInfo.queueFamilyIndex = indices.graphicsFamily.value();
+		queueCreateInfo.queueCount = 1;
+
+		float queuePriority = 1.0f;
+		queueCreateInfo.pQueuePriorities = &queuePriority;
+
+		VkPhysicalDeviceFeatures deviceFeatures{};
+
+		VkDeviceCreateInfo createInfo{};
+		createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+		createInfo.pQueueCreateInfos = &queueCreateInfo;
+		createInfo.queueCreateInfoCount = 1;
+		createInfo.pEnabledFeatures = &deviceFeatures;
+
+		createInfo.enabledExtensionCount = 0;
+
+		//It is still a good idea to set them anyway to be compatible with older implementations
+		if (enableValidationLayers)
+		{
+			createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+			createInfo.ppEnabledLayerNames = validationLayers.data();
+		}
+		else
+		{
+			createInfo.enabledExtensionCount = 0;
+		}
+
+		if (vkCreateDevice(m_physicalDevice, &createInfo, nullptr, &m_device) != VK_SUCCESS)
+		{
+			throw std::runtime_error("Failed to create logical device!");
+		}
+
+		vkGetDeviceQueue(m_device, indices.graphicsFamily.value(), 0, &m_graphicsQueue);
 	}
 
 	void pickPhysicalDevice()
 	{
-
 		uint32_t deviceCount = 0;
 		vkEnumeratePhysicalDevices(m_instance, &deviceCount, nullptr);
 		if (deviceCount == 0)
@@ -188,6 +229,7 @@ private:
 			DestroyDebugUtilsMessengerEXT(m_instance, m_debugMessenger, nullptr);
 		}
 
+		vkDestroyDevice(m_device, nullptr);
 		vkDestroyInstance(m_instance, nullptr);
 
 		glfwDestroyWindow(m_pWindow);
@@ -339,4 +381,6 @@ private:
 	VkDebugUtilsMessengerEXT m_debugMessenger;
 
 	VkPhysicalDevice m_physicalDevice = VK_NULL_HANDLE;
+	VkDevice m_device = VK_NULL_HANDLE;
+	VkQueue m_graphicsQueue;
 };
