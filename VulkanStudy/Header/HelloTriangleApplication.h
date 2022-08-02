@@ -1,6 +1,15 @@
 #pragma once
+#ifdef _WIN32
+#define VK_USE_PLATFORM_WIN32_KHR
+#endif // _WIN32
+
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
+
+#ifdef _WIN32
+#define GFW_EXPOSE_NATIVE_WIN32
+#include <GLFW/glfw3native.h>
+#endif //_WIN32
 
 #include <cstring>
 #include <optional>
@@ -23,10 +32,11 @@ const bool enableValidationLayers = true;
 struct QueueFamilyIndices
 {
 	std::optional<uint32_t> graphicsFamily;
+	std::optional<uint32_t> presentFamily;
 
 	bool isComplete()
 	{
-		return graphicsFamily.has_value();
+		return graphicsFamily.has_value() && presentFamily.has_value();
 	}
 };
 
@@ -45,7 +55,11 @@ public:
 private:
 	void initWindow();
 	void initVulkan();
+
 	void createLogicalDevice();
+	void createInstance();
+	void createSurface();
+
 	void pickPhysicalDevice();
 	bool isDeviceSuitable(VkPhysicalDevice device);
 
@@ -53,7 +67,6 @@ private:
 
 	void mainLoop();
 	void cleanup();
-	void createInstance();
 	bool checkValidationLayerSupport();
 	std::vector<const char*> getRequiredExtensions();
 
@@ -68,5 +81,9 @@ private:
 
 	VkPhysicalDevice m_physicalDevice = VK_NULL_HANDLE;
 	VkDevice m_device = VK_NULL_HANDLE;
+	
 	VkQueue m_graphicsQueue;
+	VkQueue m_presentQueue;
+
+	VkSurfaceKHR m_surface;
 };
