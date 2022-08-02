@@ -2,7 +2,7 @@
 #include <stdexcept>
 #include <cstdlib>
 
-#include "Header.h"
+#include "HelloTriangleApplication.h"
 
 int main()
 {

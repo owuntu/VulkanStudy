@@ -18,9 +18,12 @@
     <ClCompile Include="Source\Source.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\HelloTriangleApplication.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Header\Header.h">
+    <ClInclude Include="Header\HelloTriangleApplication.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
