@@ -18,8 +18,14 @@
 const uint32_t g_WINDOW_WIDTH = 800;
 const uint32_t g_WINDOW_HEIGHT = 600;
 
-const std::vector<const char*> validationLayers = {
+const std::vector<const char*> validationLayers =
+{
 	"VK_LAYER_KHRONOS_validation"
+};
+
+const std::vector<const char*> deviceExtensions =
+{
+	VK_KHR_SWAPCHAIN_EXTENSION_NAME
 };
 
 #ifdef NDEBUG
@@ -38,6 +44,14 @@ struct QueueFamilyIndices
 	{
 		return graphicsFamily.has_value() && presentFamily.has_value();
 	}
+};
+
+
+struct SwapChainSupportDetails
+{
+	VkSurfaceCapabilitiesKHR capabilities;
+	std::vector<VkSurfaceFormatKHR> formats;
+	std::vector<VkPresentModeKHR> presentModes;
 };
 
 class HelloTriangleApplication
@@ -72,6 +86,12 @@ private:
 
 	void setupDebugMessenger();
 	void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
+
+	bool checkDeviceExtensionSupport(VkPhysicalDevice device);
+
+	SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
+
+	VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
 
 private:
 	GLFWwindow* m_pWindow;
