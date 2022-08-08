@@ -74,6 +74,7 @@ private:
 	void createInstance();
 	void createSurface();
 	void createSwapChain();
+	void createImageViews();
 
 	void pickPhysicalDevice();
 	bool isDeviceSuitable(VkPhysicalDevice device);
@@ -115,4 +116,5 @@ private:
 	std::vector<VkImage> m_swapChainImages;
 	VkFormat m_swapChainImageFormat;
 	VkExtent2D m_swapChainExtent;
+	std::vector<VkImageView> m_swapChainImageViews;
 };
