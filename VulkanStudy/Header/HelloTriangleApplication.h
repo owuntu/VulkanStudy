@@ -75,6 +75,7 @@ private:
 	void createSurface();
 	void createSwapChain();
 	void createImageViews();
+	void createGraphicsPipeline();
 
 	void pickPhysicalDevice();
 	bool isDeviceSuitable(VkPhysicalDevice device);
