@@ -103,7 +103,7 @@ void HelloTriangleApplication::createLogicalDevice()
 	createInfo.pEnabledFeatures = &deviceFeatures;
 
 	createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
-	createInfo.ppEnabledLayerNames = deviceExtensions.data();
+	createInfo.ppEnabledExtensionNames = deviceExtensions.data();
 
 	//It is still a good idea to set them anyway to be compatible with older implementations
 	if (enableValidationLayers)
