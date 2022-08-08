@@ -77,6 +77,8 @@ private:
 	void createImageViews();
 	void createRenderPass();
 	void createGraphicsPipeline();
+	void createFramebuffers();
+
 	VkShaderModule createShaderModule(const std::vector<char>& code);
 
 	void pickPhysicalDevice();
@@ -125,4 +127,5 @@ private:
 	VkPipelineLayout m_pipelineLayout;
 	
 	VkPipeline m_graphicsPipeline;
+	std::vector<VkFramebuffer> m_swapChainFramebuffers;
 };

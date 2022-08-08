@@ -98,6 +98,7 @@ void HelloTriangleApplication::initVulkan()
 	createImageViews();
 	createRenderPass();
 	createGraphicsPipeline();
+	createFramebuffers();
 }
 
 void HelloTriangleApplication::createLogicalDevice()
@@ -487,6 +488,32 @@ void HelloTriangleApplication::createGraphicsPipeline()
 	vkDestroyShaderModule(m_device, vertShaderModule, nullptr);
 }
 
+void HelloTriangleApplication::createFramebuffers()
+{
+	m_swapChainFramebuffers.resize(m_swapChainImageViews.size());
+
+	for (std::size_t i = 0; i < m_swapChainImageViews.size(); ++i)
+	{
+		VkImageView attachments[] =
+		{
+			m_swapChainImageViews[i]
+		};
+
+		VkFramebufferCreateInfo framebufferInfo{};
+		framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+		framebufferInfo.renderPass = m_renderPass;
+		framebufferInfo.attachmentCount = 1;
+		framebufferInfo.pAttachments = attachments;
+		framebufferInfo.width = m_swapChainExtent.width;
+		framebufferInfo.height = m_swapChainExtent.height;
+		framebufferInfo.layers = 1;
+
+		if (vkCreateFramebuffer(m_device, &framebufferInfo, nullptr, &m_swapChainFramebuffers[i]) != VK_SUCCESS) {
+			throw std::runtime_error("Failed to create framebuffer!");
+		}
+	}
+}
+
 QueueFamilyIndices HelloTriangleApplication::findQueueFamilies(VkPhysicalDevice device)
 {
 	QueueFamilyIndices indices;
@@ -538,6 +565,10 @@ void HelloTriangleApplication::cleanup()
 	if (enableValidationLayers)
 	{
 		DestroyDebugUtilsMessengerEXT(m_instance, m_debugMessenger, nullptr);
+	}
+	for (auto framebuffer : m_swapChainFramebuffers)
+	{
+		vkDestroyFramebuffer(m_device, framebuffer, nullptr);
 	}
 
 	vkDestroyPipeline(m_device, m_graphicsPipeline, nullptr);
