@@ -78,6 +78,9 @@ private:
 	void createRenderPass();
 	void createGraphicsPipeline();
 	void createFramebuffers();
+	void createCommandPool();
+	void createCommandBuffer();
+	void createSyncObjects();
 
 	VkShaderModule createShaderModule(const std::vector<char>& code);
 
@@ -104,6 +107,10 @@ private:
 
 	VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
 
+	void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
+
+	void drawFrame();
+
 private:
 	GLFWwindow* m_pWindow;
 
@@ -128,4 +135,11 @@ private:
 	
 	VkPipeline m_graphicsPipeline;
 	std::vector<VkFramebuffer> m_swapChainFramebuffers;
+
+	VkCommandPool m_commandPool;
+	VkCommandBuffer m_commandBuffer;
+
+	VkSemaphore m_imageAvailableSemaphore;
+	VkSemaphore m_renderFinishedSemaphore;
+	VkFence m_inFlightFence;
 };
