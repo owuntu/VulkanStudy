@@ -69,6 +69,34 @@ void DestroyDebugUtilsMessengerEXT(
 	}
 }
 
+VkVertexInputBindingDescription Vertex::getBindingDescription()
+{
+	VkVertexInputBindingDescription bindingDesc{};
+	bindingDesc.binding = 0;
+	bindingDesc.stride = sizeof(Vertex);
+	bindingDesc.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+	return bindingDesc;
+}
+
+std::array<VkVertexInputAttributeDescription, 2> Vertex::getAttributeDescriptions()
+{
+	std::array<VkVertexInputAttributeDescription, 2> attribDescs{};
+	// Position
+	attribDescs[0].binding = 0;
+	attribDescs[0].location = 0;
+	attribDescs[0].format = VK_FORMAT_R32G32_SFLOAT;
+	attribDescs[0].offset = offsetof(Vertex, pos);
+
+	// Color
+	attribDescs[1].binding = 0;
+	attribDescs[1].location = 1;
+	attribDescs[1].format = VK_FORMAT_R32G32B32_SFLOAT;
+	attribDescs[1].offset = offsetof(Vertex, color);
+
+	return attribDescs;
+}
+
 void HelloTriangleApplication::run()
 {
 	initWindow();
@@ -387,10 +415,14 @@ void HelloTriangleApplication::createGraphicsPipeline()
 
 	VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
 	vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-	vertexInputInfo.vertexBindingDescriptionCount = 0;
-	vertexInputInfo.pVertexBindingDescriptions = nullptr; //Optional
-	vertexInputInfo.vertexAttributeDescriptionCount = 0;
-	vertexInputInfo.pVertexAttributeDescriptions = nullptr; // Optional
+
+	auto vertBindingDesc = Vertex::getBindingDescription();
+	auto vertAttribDescs = Vertex::getAttributeDescriptions();
+
+	vertexInputInfo.vertexBindingDescriptionCount = 1;
+	vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(vertAttribDescs.size());
+	vertexInputInfo.pVertexBindingDescriptions = &vertBindingDesc;
+	vertexInputInfo.pVertexAttributeDescriptions = vertAttribDescs.data();
 
 	VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
 	inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;

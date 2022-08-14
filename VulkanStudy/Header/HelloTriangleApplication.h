@@ -14,6 +14,9 @@
 #include <cstring>
 #include <optional>
 #include <vector>
+#include <array>
+
+#include <glm/glm.hpp>
 
 const uint32_t g_WINDOW_WIDTH = 800;
 const uint32_t g_WINDOW_HEIGHT = 600;
@@ -36,7 +39,6 @@ const bool enableValidationLayers = false;
 const bool enableValidationLayers = true;
 #endif
 
-
 struct QueueFamilyIndices
 {
 	std::optional<uint32_t> graphicsFamily;
@@ -48,12 +50,27 @@ struct QueueFamilyIndices
 	}
 };
 
-
 struct SwapChainSupportDetails
 {
 	VkSurfaceCapabilitiesKHR capabilities;
 	std::vector<VkSurfaceFormatKHR> formats;
 	std::vector<VkPresentModeKHR> presentModes;
+};
+
+struct Vertex
+{
+	glm::vec2 pos;
+	glm::vec3 color;
+
+	static VkVertexInputBindingDescription getBindingDescription();
+	static std::array<VkVertexInputAttributeDescription, 2> getAttributeDescriptions();
+};
+
+const std::vector<Vertex> vertices =
+{
+	{{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+	{{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
+	{{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
 };
 
 class HelloTriangleApplication
