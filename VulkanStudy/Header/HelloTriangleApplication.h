@@ -84,6 +84,8 @@ private:
 	void createCommandBuffers();
 	void createSyncObjects();
 
+	void recreateSwapChain();
+
 	VkShaderModule createShaderModule(const std::vector<char>& code);
 
 	void pickPhysicalDevice();
@@ -92,7 +94,10 @@ private:
 	QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
 
 	void mainLoop();
+
 	void cleanup();
+	void cleanupSwapChain();
+
 	bool checkValidationLayerSupport();
 	std::vector<const char*> getRequiredExtensions();
 
@@ -113,6 +118,7 @@ private:
 
 	void drawFrame();
 
+	static void framebufferResizeCallback(GLFWwindow* pWindow, int width, int height);
 private:
 	GLFWwindow* m_pWindow;
 
@@ -122,10 +128,13 @@ private:
 	VkPhysicalDevice m_physicalDevice = VK_NULL_HANDLE;
 	VkDevice m_device = VK_NULL_HANDLE;
 	
+	// Queue
 	VkQueue m_graphicsQueue;
 	VkQueue m_presentQueue;
 
 	VkSurfaceKHR m_surface;
+
+	// Swap chain
 	VkSwapchainKHR m_swapChain;
 	std::vector<VkImage> m_swapChainImages;
 	VkFormat m_swapChainImageFormat;
@@ -146,4 +155,5 @@ private:
 	std::vector <VkFence> m_inFlightFences;
 
 	std::size_t m_currentFrame = 0;
+	bool m_bFramebufferResized = false;
 };
