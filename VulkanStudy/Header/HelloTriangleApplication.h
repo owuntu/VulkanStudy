@@ -18,6 +18,8 @@
 const uint32_t g_WINDOW_WIDTH = 800;
 const uint32_t g_WINDOW_HEIGHT = 600;
 
+const std::size_t g_MAX_FRAMES_IN_FLIGHT = 2;
+
 const std::vector<const char*> validationLayers =
 {
 	"VK_LAYER_KHRONOS_validation"
@@ -79,7 +81,7 @@ private:
 	void createGraphicsPipeline();
 	void createFramebuffers();
 	void createCommandPool();
-	void createCommandBuffer();
+	void createCommandBuffers();
 	void createSyncObjects();
 
 	VkShaderModule createShaderModule(const std::vector<char>& code);
@@ -137,9 +139,11 @@ private:
 	std::vector<VkFramebuffer> m_swapChainFramebuffers;
 
 	VkCommandPool m_commandPool;
-	VkCommandBuffer m_commandBuffer;
+	std::vector<VkCommandBuffer> m_commandBuffers;
 
-	VkSemaphore m_imageAvailableSemaphore;
-	VkSemaphore m_renderFinishedSemaphore;
-	VkFence m_inFlightFence;
+	std::vector <VkSemaphore> m_imageAvailableSemaphores;
+	std::vector <VkSemaphore> m_renderFinishedSemaphores;
+	std::vector <VkFence> m_inFlightFences;
+
+	std::size_t m_currentFrame = 0;
 };
