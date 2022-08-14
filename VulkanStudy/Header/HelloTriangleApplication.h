@@ -98,6 +98,7 @@ private:
 	void createGraphicsPipeline();
 	void createFramebuffers();
 	void createCommandPool();
+	void createVertexBuffer();
 	void createCommandBuffers();
 	void createSyncObjects();
 
@@ -134,6 +135,8 @@ private:
 	void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
 
 	void drawFrame();
+
+	uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
 	static void framebufferResizeCallback(GLFWwindow* pWindow, int width, int height);
 private:
@@ -173,4 +176,7 @@ private:
 
 	std::size_t m_currentFrame = 0;
 	bool m_bFramebufferResized = false;
+
+	VkBuffer m_vertexBuffer;
+	VkDeviceMemory m_vertexBufferMemory;
 };
