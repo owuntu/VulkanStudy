@@ -102,6 +102,9 @@ private:
 	void createCommandBuffers();
 	void createSyncObjects();
 
+	void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
+	void copyBuffer(VkBuffer src, VkBuffer dst, VkDeviceSize size);
+
 	void recreateSwapChain();
 
 	VkShaderModule createShaderModule(const std::vector<char>& code);
