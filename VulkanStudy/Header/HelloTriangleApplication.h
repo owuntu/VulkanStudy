@@ -114,6 +114,8 @@ private:
 	void createVertexBuffer();
 	void createIndexBuffer();
 	void createUniformBuffers();
+	void createDescriptorPool();
+	void createDescriptorSets();
 	void createCommandBuffers();
 	void createSyncObjects();
 
@@ -185,6 +187,9 @@ private:
 	VkDescriptorSetLayout m_descSetLayout;
 	VkPipelineLayout m_pipelineLayout;
 	
+	VkDescriptorPool m_descPool;
+	std::vector<VkDescriptorSet> m_descSets;
+
 	VkPipeline m_graphicsPipeline;
 	std::vector<VkFramebuffer> m_swapChainFramebuffers;
 
