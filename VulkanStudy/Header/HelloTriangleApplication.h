@@ -79,6 +79,12 @@ const std::vector<uint16_t> indices =
 	0, 1, 2, 2, 3, 0
 };
 
+struct UniformBufferObject {
+	glm::mat4 model;
+	glm::mat4 view;
+	glm::mat4 proj;
+};
+
 class HelloTriangleApplication
 {
 public:
@@ -101,11 +107,13 @@ private:
 	void createSwapChain();
 	void createImageViews();
 	void createRenderPass();
+	void createDescriptorSetLayout();
 	void createGraphicsPipeline();
 	void createFramebuffers();
 	void createCommandPool();
 	void createVertexBuffer();
 	void createIndexBuffer();
+	void createUniformBuffers();
 	void createCommandBuffers();
 	void createSyncObjects();
 
@@ -144,6 +152,8 @@ private:
 
 	void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
 
+	void updateUniformBuffer(uint32_t currentImage);
+
 	void drawFrame();
 
 	uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
@@ -172,6 +182,7 @@ private:
 	std::vector<VkImageView> m_swapChainImageViews;
 
 	VkRenderPass m_renderPass;
+	VkDescriptorSetLayout m_descSetLayout;
 	VkPipelineLayout m_pipelineLayout;
 	
 	VkPipeline m_graphicsPipeline;
@@ -189,6 +200,10 @@ private:
 
 	VkBuffer m_vertexBuffer;
 	VkDeviceMemory m_vertexBufferMemory;
+
 	VkBuffer m_indexBuffer;
 	VkDeviceMemory m_indexBufferMemory;
+
+	std::vector<VkBuffer> m_uniformBuffers;
+	std::vector<VkDeviceMemory> m_uniformBuffersMemory;
 };
