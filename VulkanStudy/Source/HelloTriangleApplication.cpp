@@ -90,9 +90,9 @@ VkVertexInputBindingDescription Vertex::getBindingDescription()
 	return bindingDesc;
 }
 
-std::array<VkVertexInputAttributeDescription, 2> Vertex::getAttributeDescriptions()
+std::array<VkVertexInputAttributeDescription, 3> Vertex::getAttributeDescriptions()
 {
-	std::array<VkVertexInputAttributeDescription, 2> attribDescs{};
+	std::array<VkVertexInputAttributeDescription, 3> attribDescs{};
 	// Position
 	attribDescs[0].binding = 0;
 	attribDescs[0].location = 0;
@@ -104,6 +104,12 @@ std::array<VkVertexInputAttributeDescription, 2> Vertex::getAttributeDescription
 	attribDescs[1].location = 1;
 	attribDescs[1].format = VK_FORMAT_R32G32B32_SFLOAT;
 	attribDescs[1].offset = offsetof(Vertex, color);
+
+	// texture coordinate
+	attribDescs[2].binding = 0;
+	attribDescs[2].location = 2;
+	attribDescs[2].format = VK_FORMAT_R32G32_SFLOAT;
+	attribDescs[2].offset = offsetof(Vertex, texCoord);
 
 	return attribDescs;
 }
@@ -414,10 +420,19 @@ void HelloTriangleApplication::createDescriptorSetLayout()
 	uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 	uboLayoutBinding.pImmutableSamplers = nullptr; // Optional
 
+	VkDescriptorSetLayoutBinding samplerLayoutBinding{};
+	samplerLayoutBinding.binding = 1;
+	samplerLayoutBinding.descriptorCount = 1;
+	samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	samplerLayoutBinding.pImmutableSamplers = nullptr;
+	samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+	std::array<VkDescriptorSetLayoutBinding, 2> bindings = { uboLayoutBinding, samplerLayoutBinding };
+
 	VkDescriptorSetLayoutCreateInfo layoutInfo{};
 	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-	layoutInfo.bindingCount = 1;
-	layoutInfo.pBindings = &uboLayoutBinding;
+	layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
+	layoutInfo.pBindings = bindings.data();
 
 	if (vkCreateDescriptorSetLayout(m_device, &layoutInfo, nullptr, &m_descSetLayout) != VK_SUCCESS)
 	{
@@ -841,7 +856,8 @@ void HelloTriangleApplication::createImage(uint32_t width, uint32_t height, VkFo
 	allocInfo.allocationSize = memRequirements.size;
 	allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
 
-	if (vkAllocateMemory(m_device, &allocInfo, nullptr, &imageMemory) != VK_SUCCESS) {
+	if (vkAllocateMemory(m_device, &allocInfo, nullptr, &imageMemory) != VK_SUCCESS)
+	{
 		throw std::runtime_error("failed to allocate image memory!");
 	}
 
@@ -862,7 +878,8 @@ VkImageView HelloTriangleApplication::createImageView(VkImage image, VkFormat fo
 	viewInfo.subresourceRange.layerCount = 1;
 
 	VkImageView imageView;
-	if (vkCreateImageView(m_device, &viewInfo, nullptr, &imageView) != VK_SUCCESS) {
+	if (vkCreateImageView(m_device, &viewInfo, nullptr, &imageView) != VK_SUCCESS)
+	{
 		throw std::runtime_error("Failed to create image view!");
 	}
 
@@ -1062,14 +1079,16 @@ void HelloTriangleApplication::copyBufferToImage(VkBuffer buffer, VkImage image,
 
 void HelloTriangleApplication::createDescriptorPool()
 {
-	VkDescriptorPoolSize poolSize{};
-	poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	poolSize.descriptorCount = static_cast<uint32_t>(g_MAX_FRAMES_IN_FLIGHT);
+	std::array<VkDescriptorPoolSize, 2> poolSizes{};
+	poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	poolSizes[0].descriptorCount = static_cast<uint32_t>(g_MAX_FRAMES_IN_FLIGHT);
+	poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	poolSizes[1].descriptorCount = static_cast<uint32_t>(g_MAX_FRAMES_IN_FLIGHT);
 
 	VkDescriptorPoolCreateInfo poolInfo{};
 	poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-	poolInfo.poolSizeCount = 1;
-	poolInfo.pPoolSizes = &poolSize;
+	poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
+	poolInfo.pPoolSizes = poolSizes.data();
 	poolInfo.maxSets = static_cast<uint32_t>(g_MAX_FRAMES_IN_FLIGHT);
 
 	if (vkCreateDescriptorPool(m_device, &poolInfo, nullptr, &m_descPool) != VK_SUCCESS)
@@ -1100,18 +1119,29 @@ void HelloTriangleApplication::createDescriptorSets()
 		bufferInfo.offset = 0;
 		bufferInfo.range = sizeof(UniformBufferObject);
 
-		VkWriteDescriptorSet descWrite{};
-		descWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		descWrite.dstSet = m_descSets[i];
-		descWrite.dstBinding = 0;
-		descWrite.dstArrayElement = 0;
-		descWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		descWrite.descriptorCount = 1;
-		descWrite.pBufferInfo = &bufferInfo;
-		descWrite.pImageInfo = nullptr; // Optional
-		descWrite.pTexelBufferView = nullptr; // Optional
+		VkDescriptorImageInfo imageInfo{};
+		imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		imageInfo.imageView = m_textureImageView;
+		imageInfo.sampler = m_textureSampler;
 
-		vkUpdateDescriptorSets(m_device, 1, &descWrite, 0, nullptr);
+		std::array<VkWriteDescriptorSet, 2> descWrites{};
+		descWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		descWrites[0].dstSet = m_descSets[i];
+		descWrites[0].dstBinding = 0;
+		descWrites[0].dstArrayElement = 0;
+		descWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		descWrites[0].descriptorCount = 1;
+		descWrites[0].pBufferInfo = &bufferInfo;
+
+		descWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		descWrites[1].dstSet = m_descSets[i];
+		descWrites[1].dstBinding = 1;
+		descWrites[1].dstArrayElement = 0;
+		descWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		descWrites[1].descriptorCount = 1;
+		descWrites[1].pImageInfo = &imageInfo;
+
+		vkUpdateDescriptorSets(m_device, static_cast<uint32_t>(descWrites.size()), descWrites.data(), 0, nullptr);
 	}
 }
 
