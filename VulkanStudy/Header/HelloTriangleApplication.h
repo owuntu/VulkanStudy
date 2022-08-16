@@ -104,25 +104,36 @@ private:
 	void createLogicalDevice();
 	void createInstance();
 	void createSurface();
+
 	void createSwapChain();
 	void createImageViews();
 	void createRenderPass();
 	void createDescriptorSetLayout();
 	void createGraphicsPipeline();
+
 	void createFramebuffers();
 	void createCommandPool();
+
 	void createTextureImage();
+	void createTextureImageView();
+	void createTextureSampler();
+
 	void createVertexBuffer();
 	void createIndexBuffer();
 	void createUniformBuffers();
+
 	void createDescriptorPool();
 	void createDescriptorSets();
+
 	void createCommandBuffers();
+
 	void createSyncObjects();
 
 	void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
 
 	void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
+
+	VkImageView createImageView(VkImage image, VkFormat format);
 
 	void recreateSwapChain();
 
@@ -223,4 +234,7 @@ private:
 
 	VkImage m_textureImage;
 	VkDeviceMemory m_textureImageMemory;
+
+	VkImageView m_textureImageView;
+	VkSampler m_textureSampler;
 };
