@@ -15,11 +15,20 @@
 #include <optional>
 #include <vector>
 #include <array>
+#include <string>
 
 #include <glm/glm.hpp>
+#ifndef GLM_ENABLE_EXPERIMENTAL
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/hash.hpp>
+#endif // GLM_ENABLE_EXPERIMENTAL
 
 const uint32_t g_WINDOW_WIDTH = 800;
 const uint32_t g_WINDOW_HEIGHT = 600;
+
+const std::string MODEL_PATH = "Models/viking_room.obj";
+const std::string TEXTURE_PATH = "Textures/viking_room.png";
+//const std::string TEXTURE_PATH = "Textures/texture.jpg";
 
 const std::size_t g_MAX_FRAMES_IN_FLIGHT = 2;
 
@@ -65,26 +74,29 @@ struct Vertex
 
 	static VkVertexInputBindingDescription getBindingDescription();
 	static std::array<VkVertexInputAttributeDescription, 3> getAttributeDescriptions();
+
+	bool operator==(const Vertex& other) const
+	{
+		return pos == other.pos && color == other.color && texCoord == other.texCoord;
+	}	
 };
 
-const std::vector<Vertex> vertices =
+namespace std
 {
-	{{-0.5f, -0.5f, 0.f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
-	{{0.5f, -0.5f, 0.f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-	{{0.5f, 0.5f, 0.f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-	{{-0.5f, 0.5f, 0.f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
-
-	{{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
-	{{0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-	{{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-	{{-0.5f, 0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}
-};
-
-const std::vector<uint16_t> indices =
-{
-	0, 1, 2, 2, 3, 0,
-	4, 5, 6, 6, 7, 4
-};
+	template<>
+	struct hash<Vertex>
+	{
+		size_t operator()(Vertex const& vertex) const
+		{
+			return
+			(
+				(hash<glm::vec3>()(vertex.pos) ^
+				(hash<glm::vec3>()(vertex.color) << 1)) >> 1) ^
+				(hash<glm::vec2>()(vertex.texCoord) << 1
+			);
+		}
+	}; // struct hash<Vertex>
+} // namespace std
 
 struct UniformBufferObject {
 	glm::mat4 model;
@@ -126,6 +138,7 @@ private:
 	void createTextureImageView();
 	void createTextureSampler();
 
+	void loadModel();
 	void createVertexBuffer();
 	void createIndexBuffer();
 	void createUniformBuffers();
@@ -232,6 +245,9 @@ private:
 
 	std::size_t m_currentFrame = 0;
 	bool m_bFramebufferResized = false;
+
+	std::vector<Vertex> m_vertices;
+	std::vector<uint32_t> m_indices;
 
 	VkBuffer m_vertexBuffer;
 	VkDeviceMemory m_vertexBufferMemory;
