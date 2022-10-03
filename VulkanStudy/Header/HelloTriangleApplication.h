@@ -133,6 +133,7 @@ private:
 	void createFramebuffers();
 	void createCommandPool();
 	void createDepthResources();
+	void createColorResources();
 
 	void createTextureImage();
 	void createTextureImageView();
@@ -152,7 +153,7 @@ private:
 
 	void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
 
-	void createImage(uint32_t width, uint32_t height, uint32_t mipLevels, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
+	void createImage(uint32_t width, uint32_t height, uint32_t mipLevels, VkSampleCountFlagBits numSamples, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
 
 	VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, uint32_t mipLevels);
 
@@ -203,6 +204,8 @@ private:
 	uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 	VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
 	VkFormat findDepthFormat();
+
+	VkSampleCountFlagBits getMaxUsableSampleCount();
 
 	static void framebufferResizeCallback(GLFWwindow* pWindow, int width, int height);
 private:
@@ -269,6 +272,12 @@ private:
 	VkImage m_depthImage;
 	VkDeviceMemory m_depthImageMemory;
 	VkImageView m_depthImageView;
+
+	VkSampleCountFlagBits m_msaaSamples = VK_SAMPLE_COUNT_1_BIT;
+
+	VkImage m_colorImage;
+	VkDeviceMemory m_colorImageMemory;
+	VkImageView m_colorImageView;
 };
 
 inline bool hasStencilComponent(VkFormat format)
